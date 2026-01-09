@@ -33,6 +33,7 @@ apache-compress = { module = "org.apache.commons:commons-compress", version.ref 
 
 # DB
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres" }
 
 # Testcontainers

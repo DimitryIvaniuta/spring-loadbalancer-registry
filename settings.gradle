@@ -1,0 +1,3 @@
+rootProject.name = "spring-loadbalancer-registry"
+include "loadbalancer-lib"
+include "loadbalancer-demo"

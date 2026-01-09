@@ -1,0 +1,23 @@
+plugins {
+    alias(libs.plugins.spring.boot) apply false
+    // REMOVE: id "java" apply false
+}
+
+allprojects {
+    group = "com.github.dimitryivaniuta"
+    version = "1.0.0"
+    repositories { mavenCentral() }
+}
+
+subprojects {
+    // apply the core Java plugin here (this is the right place)
+    apply plugin: "java"
+
+    java {
+        toolchain { languageVersion = JavaLanguageVersion.of(21) }
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+}

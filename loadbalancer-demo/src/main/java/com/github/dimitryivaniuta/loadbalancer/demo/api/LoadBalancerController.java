@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/lb")
@@ -31,9 +32,9 @@ public class LoadBalancerController {
     }
 
     @GetMapping("/instances/next")
-    public ResponseEntity<InstanceResponse> next() {
+    public ResponseEntity<Map<String, String>> next() {
         return lb.nextAddress()
-                .map(a -> ResponseEntity.ok(new InstanceResponse(a)))
+                .map(a -> ResponseEntity.ok(Map.of("address", a)))
                 .orElseGet(() -> ResponseEntity.noContent().build());
     }
 }

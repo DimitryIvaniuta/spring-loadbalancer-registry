@@ -4,12 +4,12 @@ plugins {
 
 dependencies {
     implementation libs.apache.compress
-    // Provide versions for Spring starters via BOM
-    api platform(libs.spring.boot.bom)
+    // Provide versions for starters + junit-platform-launcher via Spring Boot BOM
+    api(platform(libs.spring.boot.bom))
 
     api libs.spring.boot.starter.data.jpa
     api libs.flyway.core
-    api libs.flyway.postgresql
+    runtimeOnly libs.flyway.postgresql
     runtimeOnly libs.postgresql
 
     compileOnly libs.lombok
@@ -18,4 +18,14 @@ dependencies {
     testImplementation libs.spring.boot.starter.test
     testImplementation libs.testcontainers.junit.jupiter
     testImplementation libs.testcontainers.postgresql
+
+    // Fixes: "Failed to load JUnit Platform... including the JUnit Platform launcher"
+    testRuntimeOnly libs.junit.platform.launcher
+    testRuntimeOnly libs.postgresql
+    testRuntimeOnly libs.flyway.postgresql
+
+}
+
+test {
+    useJUnitPlatform()
 }

@@ -1,5 +1,6 @@
 package com.github.dimitryivaniuta.loadbalancer.service;
 
+import com.github.dimitryivaniuta.loadbalancer.api.ContextAwareStrategy;
 import com.github.dimitryivaniuta.loadbalancer.api.LoadBalancer;
 import com.github.dimitryivaniuta.loadbalancer.api.LoadBalancingStrategy;
 import com.github.dimitryivaniuta.loadbalancer.config.LoadBalancerProperties;
@@ -31,19 +32,22 @@ public class LoadBalancerService implements LoadBalancer {
 
     @Override
     @Transactional
-    public long register(String address) {
-        String normalized = normalize(address);
+    public long register(String tenantId, String serviceGroup, String address) {
+        String t = normalizeKey(tenantId);
+        String g = normalizeKey(serviceGroup);
+        String a = normalize(address);
 
-        // Lock rows to enforce capacity safely under concurrent registrations.
-        List<LbInstance> locked = repo.findAllForUpdate();
+        List<LbInstance> locked = repo.findAllForUpdate(t, g);
 
-        boolean exists = locked.stream().anyMatch(i -> i.getAddress().equals(normalized));
-        if (exists) throw new DuplicateAddressException(normalized);
+        boolean exists = locked.stream().anyMatch(i -> i.getAddress().equals(a));
+        if (exists) throw new DuplicateAddressException(a);
 
         if (locked.size() >= props.getMaxInstances()) throw new CapacityExceededException(props.getMaxInstances());
 
         LbInstance saved = repo.save(LbInstance.builder()
-                .address(normalized)
+                .tenantId(t)
+                .serviceGroup(g)
+                .address(a)
                 .createdAt(OffsetDateTime.now())
                 .build());
 
@@ -52,16 +56,18 @@ public class LoadBalancerService implements LoadBalancer {
 
     @Override
     @Transactional
-    public void unregister(String address) {
-        String normalized = normalize(address);
-        int deleted = repo.deleteByAddress(normalized);
-        if (deleted == 0) throw new InstanceNotFoundException(normalized);
+    public void unregister(String address, String tenantId, String serviceGroup) {
+        String normalizedAddress = normalize(address);
+        int deleted = repo.deleteByTenantIdAndServiceGroupAndAddress(tenantId, serviceGroup, normalizedAddress);
+        if (deleted == 0) {
+            throw new InstanceNotFoundException(normalizedAddress);
+        }
     }
 
     @Override
     @Transactional
-    public List<String> listAddresses() {
-        return repo.findAll().stream()
+    public List<String> listAddresses(String tenantId, String serviceGroup) {
+        return repo.findAllByTenantIdAndServiceGroup(tenantId, serviceGroup).stream()
                 .sorted(Comparator.comparing(LbInstance::getId))
                 .map(LbInstance::getAddress)
                 .toList();
@@ -69,19 +75,31 @@ public class LoadBalancerService implements LoadBalancer {
 
     @Override
     @Transactional
-    public Optional<String> nextAddress() {
-        List<String> addresses = listAddresses();
+    public Optional<String> nextAddress(String tenantId, String serviceGroup) {
+        List<String> addresses = listAddresses(tenantId, serviceGroup);
 
         DecisionContext ctx = decisionContext(); // <- NEW per call
         ctx.started(strategy.getClass().getSimpleName(), addresses.size());
 
-        Optional<String> chosen = strategy.choose(addresses);
+        Optional<String> chosen = chooseStrategy(addresses, tenantId, serviceGroup);
         chosen.ifPresent(ctx::chosen);
 
         decisionRepo.save(ctx.toEntity());
         return chosen;
     }
 
+    private Optional<String> chooseStrategy(List<String> addresses, String tenantId, String serviceGroup) {
+        if (strategy instanceof ContextAwareStrategy ctx) {
+            return ctx.choose(tenantId, serviceGroup);
+        }
+        return strategy.choose(addresses);
+    }
+
+    private static String normalizeKey(String v) {
+        if (v == null) return "default";
+        String x = v.trim();
+        return x.isEmpty() ? "default" : x;
+    }
 
     private static String normalize(String address) {
         if (address == null) throw new IllegalArgumentException("address must not be null");

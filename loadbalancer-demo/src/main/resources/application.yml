@@ -15,3 +15,11 @@ spring:
 
 loadbalancer:
   max-instances: 10
+#  strategy: DISTRIBUTED_ROUND_ROBIN
+#  strategy: RANDOM
+#  strategy: LEAST_RECENTLY_USED
+  strategy: WEIGHTED_RANDOM
+  weights:
+    "http://10.0.0.1:8080": 5
+    "http://10.0.0.2:8080": 1
+

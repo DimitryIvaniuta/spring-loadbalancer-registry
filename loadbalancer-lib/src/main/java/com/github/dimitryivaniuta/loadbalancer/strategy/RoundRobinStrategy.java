@@ -1,4 +1,6 @@
-package com.github.dimitryivaniuta.loadbalancer.api;
+package com.github.dimitryivaniuta.loadbalancer.strategy;
+
+import com.github.dimitryivaniuta.loadbalancer.api.LoadBalancingStrategy;
 
 import java.util.List;
 import java.util.Optional;

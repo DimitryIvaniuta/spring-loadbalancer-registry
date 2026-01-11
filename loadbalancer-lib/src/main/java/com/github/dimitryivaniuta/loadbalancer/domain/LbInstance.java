@@ -23,4 +23,13 @@ public class LbInstance {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    @Column(name = "last_used_at")
+    private OffsetDateTime lastUsedAt;
+
+    @Column(name = "tenant_id", nullable = false, length = 64)
+    private String tenantId;
+
+    @Column(name = "service_group", nullable = false, length = 64)
+    private String serviceGroup;
 }

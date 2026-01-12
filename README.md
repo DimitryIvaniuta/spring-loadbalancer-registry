@@ -190,6 +190,13 @@ Ensure `org.postgresql:postgresql` is on the **test runtime classpath** of `load
 
 ---
 
-## License
+## 📜 License
 
-MIT (or choose your preferred license).
+MIT
+
+---
+
+## Contact
+
+**Dimitry Ivaniuta** — [dzmitry.ivaniuta.services@gmail.com](mailto:dzmitry.ivaniuta.services@gmail.com) — [GitHub](https://github.com/DimitryIvaniuta)
+

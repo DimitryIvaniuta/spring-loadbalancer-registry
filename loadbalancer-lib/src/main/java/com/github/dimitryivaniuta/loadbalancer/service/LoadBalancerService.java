@@ -3,6 +3,7 @@ package com.github.dimitryivaniuta.loadbalancer.service;
 import com.github.dimitryivaniuta.loadbalancer.api.ContextAwareStrategy;
 import com.github.dimitryivaniuta.loadbalancer.api.LoadBalancer;
 import com.github.dimitryivaniuta.loadbalancer.api.LoadBalancingStrategy;
+import com.github.dimitryivaniuta.loadbalancer.api.RegistryScope;
 import com.github.dimitryivaniuta.loadbalancer.config.LoadBalancerProperties;
 import com.github.dimitryivaniuta.loadbalancer.domain.LbInstance;
 import com.github.dimitryivaniuta.loadbalancer.exceptions.*;
@@ -32,9 +33,9 @@ public class LoadBalancerService implements LoadBalancer {
 
     @Override
     @Transactional
-    public long register(String tenantId, String serviceGroup, String address) {
-        String t = normalizeKey(tenantId);
-        String g = normalizeKey(serviceGroup);
+    public long register(RegistryScope scope, String address) {
+        String t = normalizeKey(scope.tenantId());
+        String g = normalizeKey(scope.serviceGroup());
         String a = normalize(address);
 
         List<LbInstance> locked = repo.findAllForUpdate(t, g);
@@ -56,9 +57,9 @@ public class LoadBalancerService implements LoadBalancer {
 
     @Override
     @Transactional
-    public void unregister(String address, String tenantId, String serviceGroup) {
+    public void unregister(RegistryScope scope, String address) {
         String normalizedAddress = normalize(address);
-        int deleted = repo.deleteByTenantIdAndServiceGroupAndAddress(tenantId, serviceGroup, normalizedAddress);
+        int deleted = repo.deleteByTenantIdAndServiceGroupAndAddress(scope.tenantId(), scope.serviceGroup(), normalizedAddress);
         if (deleted == 0) {
             throw new InstanceNotFoundException(normalizedAddress);
         }
@@ -66,8 +67,8 @@ public class LoadBalancerService implements LoadBalancer {
 
     @Override
     @Transactional
-    public List<String> listAddresses(String tenantId, String serviceGroup) {
-        return repo.findAllByTenantIdAndServiceGroup(tenantId, serviceGroup).stream()
+    public List<String> listAddresses(RegistryScope scope) {
+        return repo.findAllByTenantIdAndServiceGroup(scope.tenantId(), scope.serviceGroup()).stream()
                 .sorted(Comparator.comparing(LbInstance::getId))
                 .map(LbInstance::getAddress)
                 .toList();
@@ -75,22 +76,22 @@ public class LoadBalancerService implements LoadBalancer {
 
     @Override
     @Transactional
-    public Optional<String> nextAddress(String tenantId, String serviceGroup) {
-        List<String> addresses = listAddresses(tenantId, serviceGroup);
+    public Optional<String> nextAddress(RegistryScope scope) {
+        List<String> addresses = listAddresses(scope);
 
         DecisionContext ctx = decisionContext(); // <- NEW per call
         ctx.started(strategy.getClass().getSimpleName(), addresses.size());
 
-        Optional<String> chosen = chooseStrategy(addresses, tenantId, serviceGroup);
+        Optional<String> chosen = chooseStrategy(addresses, scope);
         chosen.ifPresent(ctx::chosen);
 
         decisionRepo.save(ctx.toEntity());
         return chosen;
     }
 
-    private Optional<String> chooseStrategy(List<String> addresses, String tenantId, String serviceGroup) {
+    private Optional<String> chooseStrategy(List<String> addresses, RegistryScope scope) {
         if (strategy instanceof ContextAwareStrategy ctx) {
-            return ctx.choose(tenantId, serviceGroup);
+            return ctx.choose(scope.tenantId(), scope.serviceGroup());
         }
         return strategy.choose(addresses);
     }

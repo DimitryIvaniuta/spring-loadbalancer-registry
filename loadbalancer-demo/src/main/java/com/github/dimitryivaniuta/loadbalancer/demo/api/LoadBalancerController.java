@@ -1,6 +1,7 @@
 package com.github.dimitryivaniuta.loadbalancer.demo.api;
 
 import com.github.dimitryivaniuta.loadbalancer.api.LoadBalancer;
+import com.github.dimitryivaniuta.loadbalancer.api.RegistryScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,17 +24,17 @@ public class LoadBalancerController {
             @RequestHeader(value = HDR_GROUP, required = false) String serviceGroup,
             @RequestBody RegisterRequest req
     ) {
-        long id = lb.register(tenantId, serviceGroup, req.address());
+        long id = lb.register(scope(tenantId, serviceGroup), req.address());
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/instances")
     public ResponseEntity<Void> unregister(
+            @RequestParam("address") String address,
             @RequestHeader(value = HDR_TENANT, required = false) String tenantId,
-            @RequestHeader(value = HDR_GROUP, required = false) String serviceGroup,
-            @RequestParam("address") String address
+            @RequestHeader(value = HDR_GROUP, required = false) String serviceGroup
     ) {
-        lb.unregister(tenantId, serviceGroup, address);
+        lb.unregister(scope(tenantId, serviceGroup), address);
         return ResponseEntity.noContent().build();
     }
 
@@ -42,7 +43,7 @@ public class LoadBalancerController {
             @RequestHeader(value = HDR_TENANT, required = false) String tenantId,
             @RequestHeader(value = HDR_GROUP, required = false) String serviceGroup
     ) {
-        return ResponseEntity.ok(lb.listAddresses(tenantId, serviceGroup));
+        return ResponseEntity.ok(lb.listAddresses(scope(tenantId, serviceGroup)));
     }
 
     @GetMapping("/instances/next")
@@ -50,8 +51,13 @@ public class LoadBalancerController {
             @RequestHeader(value = HDR_TENANT, required = false) String tenantId,
             @RequestHeader(value = HDR_GROUP, required = false) String serviceGroup
     ) {
-        return lb.nextAddress(tenantId, serviceGroup)
+        return lb.nextAddress(scope(tenantId, serviceGroup))
                 .map(a -> ResponseEntity.ok(new InstanceResponse(a)))
                 .orElseGet(() -> ResponseEntity.noContent().build());
     }
+
+    private RegistryScope scope(String tenantId, String serviceGroup) {
+        return RegistryScope.of(tenantId, serviceGroup);
+    }
+
 }

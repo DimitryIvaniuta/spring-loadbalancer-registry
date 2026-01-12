@@ -1,0 +1,194 @@
+{
+  "info": {
+    "name": "Load Balancer Demo API",
+    "_postman_id": "83c049c0-056e-4647-a865-8d7908013c03",
+    "description": "Demo API: register up to 10 unique instance addresses and fetch next address (round-robin).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "addressA",
+      "value": "http://10.0.0.1:8080"
+    },
+    {
+      "key": "addressB",
+      "value": "http://10.0.0.2:8080"
+    },
+    {
+      "key": "addressC",
+      "value": "http://10.0.0.3:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressA}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register B",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressB}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register C",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressC}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List instances",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Next instance (round-robin)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances/next",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances",
+            "next"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Unregister A",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances?address={{addressA}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ],
+          "query": [
+            {
+              "key": "address",
+              "value": "{{addressA}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register duplicate B (should fail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressB}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    }
+  ]
+}

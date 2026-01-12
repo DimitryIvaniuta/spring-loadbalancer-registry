@@ -1,0 +1,292 @@
+{
+  "info": {
+    "name": "spring-loadbalancer-registry (tenant + group + strategies)",
+    "_postman_id": "7055dcc5-512f-4fc1-bace-d866bc745931",
+    "description": "Demo API for Load Balancer Registry. Supports tenant+service group via headers; strategies include RR, Distributed RR, Random, Weighted, LRU.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "tenantId",
+      "value": "tenant-1"
+    },
+    {
+      "key": "serviceGroup",
+      "value": "payments"
+    },
+    {
+      "key": "addressA",
+      "value": "http://10.0.0.1:8080"
+    },
+    {
+      "key": "addressB",
+      "value": "http://10.0.0.2:8080"
+    },
+    {
+      "key": "addressC",
+      "value": "http://10.0.0.3:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register A (tenant+group)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "{{serviceGroup}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressA}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register B (tenant+group)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "{{serviceGroup}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressB}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register C (tenant+group)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "{{serviceGroup}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressC}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List instances (tenant+group)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "{{serviceGroup}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Next instance (tenant+group)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "{{serviceGroup}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances/next",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances",
+            "next"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Unregister A (tenant+group)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "{{serviceGroup}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances?address={{addressA}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ],
+          "query": [
+            {
+              "key": "address",
+              "value": "{{addressA}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register same address in different group (should succeed)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "shipping"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"address\": \"{{addressA}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Next instance for other group (shipping)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Tenant-Id",
+            "value": "{{tenantId}}"
+          },
+          {
+            "key": "X-Service-Group",
+            "value": "shipping"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances/next",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances",
+            "next"
+          ]
+        }
+      }
+    }
+  ]
+}

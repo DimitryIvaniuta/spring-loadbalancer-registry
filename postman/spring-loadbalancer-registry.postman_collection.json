@@ -1,0 +1,139 @@
+{
+  "info": {
+    "name": "Spring LoadBalancer Registry Demo",
+    "_postman_id": "a65a2754-577a-43fc-aec0-626082a43683",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "addressA",
+      "value": "http://10.0.0.1:8080"
+    },
+    {
+      "key": "addressB",
+      "value": "http://10.0.0.2:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register instance",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances?address={{addressA}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ],
+          "query": [
+            {
+              "key": "address",
+              "value": "{{addressA}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register instance (B)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances?address={{addressB}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ],
+          "query": [
+            {
+              "key": "address",
+              "value": "{{addressB}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List instances",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Next instance",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances/next",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances",
+            "next"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Unregister instance",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/lb/instances?address={{addressA}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "lb",
+            "instances"
+          ],
+          "query": [
+            {
+              "key": "address",
+              "value": "{{addressA}}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
